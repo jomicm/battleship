@@ -154,6 +154,8 @@ class Board extends React.Component {
     },
     ready: {},
     letsplay: false,
+    whoisplaying: -1,
+    winner: -1,
   }
 
   componentDidMount() {
@@ -177,30 +179,52 @@ class Board extends React.Component {
     // }
     const whostarts = this.getRandomTo(this.props.boards - 1);
     console.log("Soooo, let's play!!!!. First turn for player: ", whostarts + 1);
+    this.setState({whoisplaying: whostarts});
   }
 
   async handleClick(i) {
-    const placing =  await this.state.placing;
-    console.log('i', i);
-    const [tab, index] = i.split('_');
-    if (placing) {
-      console.log('About to place!', placing);
-      const [x, y] = this.convertFromNumberToXY(Number(index) + 1);
-      let startingPoint = placing.pos === 'H' ? x - 1 : y - 1;
-      let rowCol = placing.pos === 'H' ? y - 1 : x - 1;
-      let points = this.placeShip(placing.name, placing.pos, startingPoint, rowCol);
-      const resTryPlace = await this.tryPlaceShip(points, tab, placing.name);
-      this.setState({placing: null});
-      if (!resTryPlace) {
-        alert('Space already used!');
-        return;
-      }
-      this.colorPoints(tab, points, 'magenta');
+    const winner =  await this.state.winner;
+    if (winner > -1) {
+      alert('The game is over, you can restart it!. BTW player who won:' + winner.toString());
       return;
     }
-    // Color the clicked square either hit or miss
-    let color = this.handleHit(tab, index);
-    this.colorPoints(tab, index, color);
+    const placing =  await this.state.placing;
+    let whoisplaying = await this.state.whoisplaying;
+    console.log('i', i);
+    let [tab, index] = i.split('_');
+    tab = Number(tab);
+    index = Number(index);
+    if (placing) {
+      this.handlePlacingClick(tab, index, placing);
+    } else if (whoisplaying > -1) {
+      console.log('whoisplaying', whoisplaying);
+      console.log('tab', tab);
+      if (whoisplaying !== tab) {
+        alert('Not your turn!');
+        return;
+      }
+      // Color the clicked square either hit or miss
+      let color = this.handleHit(tab, index);
+      this.colorPoints(tab, index, color);
+      whoisplaying++;
+      whoisplaying = whoisplaying > this.props.boards - 1 ? 0 : whoisplaying;
+      this.setState({ whoisplaying });
+    }
+  }
+
+  async handlePlacingClick(tab, index, placing) {
+    console.log('About to place!', placing);
+    const [x, y] = this.convertFromNumberToXY(Number(index) + 1);
+    let startingPoint = placing.pos === 'H' ? x - 1 : y - 1;
+    let rowCol = placing.pos === 'H' ? y - 1 : x - 1;
+    let points = this.placeShip(placing.name, placing.pos, startingPoint, rowCol);
+    const resTryPlace = await this.tryPlaceShip(points, tab, placing.name);
+    this.setState({placing: null});
+    if (!resTryPlace) {
+      alert('Space already used!');
+      return;
+    }
+    this.colorPoints(tab, points, 'magenta');
   }
 
   colorPoints(tab, points, color) {
@@ -292,6 +316,7 @@ class Board extends React.Component {
 
   handleLose(tab) {
     console.log('Player ' + tab + ' You lost!')
+    this.setState({winner: tab})
   }
 
   //let used = [];
@@ -421,6 +446,50 @@ class Board extends React.Component {
     this.setState({ ready, letsplay });
   }
 
+  handleResetGame() {
+    this.setState({
+      boards: Array(this.props.boards).fill(0).map(x => Array(this.props.max * this.props.max).fill(0)),
+      ships2: {},
+      shipDefinition: {
+        'carrier': { size: 5},
+        'battleship': { size: 4},
+        'cruiser': { size: 3},
+        'submarine': { size: 3},
+        'destroyer': { size: 2}
+      },
+      shipDef2: [{
+        'carrier': { size: 5, quantity: 2 },
+        'battleship': { size: 4, quantity: 1 },
+        'cruiser': { size: 3, quantity: 1 },
+        'submarine': { size: 3, quantity: 1 },
+        'destroyer': { size: 2, quantity: 1 }
+      },
+      {
+        'carrier': { size: 5, quantity: 1 },
+        'battleship': { size: 4, quantity: 1 },
+        'cruiser': { size: 3, quantity: 1 },
+        'submarine': { size: 3, quantity: 1 },
+        'destroyer': { size: 2, quantity: 3 }
+      }],
+      score: {},
+      gameInfo: {},
+      history: {},
+      used: {},
+      placing: null,
+      color: {
+        yellow: 0,
+        red: 1,
+        cyan: 2,
+        blue: 3,
+        magenta: 4,
+      },
+      ready: {},
+      letsplay: false,
+      whoisplaying: -1,
+      winner: -1,
+    });
+  }
+
   renderTableau(tab, max, color) {
     console.log('Ready Status Player ', tab, this.state.ready['player' + tab]);
     const tableauValues = this.state.boards[tab];
@@ -455,14 +524,17 @@ class Board extends React.Component {
     }
     const instructions = "Welcome! First every player has to place her/his ships, then the game will start automatically once every player has pressed 'I'm ready' button!";
     const playing = 'The game is on, your turn player:';
+    const end = 'This amazing game is over. The winner is player: ';
+    let whoisplaying = this.state.whoisplaying;
     return (
       <div>
         <h1>Battleship Game!</h1>
         {!this.state.letsplay && <h3>{instructions}</h3>}
-        {this.state.letsplay && <h3>{playing}</h3>}
-        <div className="status">{status}</div>
+        {(this.state.letsplay && this.state.winner < 0) && <h3>{playing} {whoisplaying + 1}</h3>}
+        {this.state.winner > -1 && <h3>{end} {this.state.winner}</h3>}
+        {/* <div className="status">{status}</div> */}
         {/* <button onClick={() => this.handleStartAuto()}>Start the Game Auto Mode!</button> */}
-        {this.state.letsplay && <button onClick={() => this.handleStartAuto()}>Restart Game!</button>}
+        {this.state.letsplay && <button onClick={() => this.handleResetGame()}>Restart Game!</button>}
         {/* {!this.state.letsplay && <button onClick={() => this.handleStartManual()}>Start the Game!</button>} */}
         {/* <div>
           
