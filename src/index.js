@@ -48,8 +48,8 @@ class MyShips extends Component {
     //console.log('Rendering my ships', this.props.ships);
     const myShips = !this.props.ships ? {} : this.props.ships;
     return <div>
-      <span>Your ships player {this.props.player}:</span>
-      {Object.keys(myShips).map((key, ix) => <div key={'shipInfo' + ix}>🚢 Ship: {key.toUpperCase()} ({myShips[key].length}) Sunk({myShips[key].filter(x => x.killed).length}) {myShips[key].filter(x => x.killed).length === myShips[key].length ? ' All ' + key.toUpperCase() + ' are sunk ❌'  : ''}</div>)}
+      <span>Your ships player {this.props.player + 1}:</span>
+      {Object.keys(myShips).map((key, ix) => <div key={'shipInfo' + ix}><span role="img" aria-label="ship">🚢</span> Ship: {key.toUpperCase()} ({myShips[key].length}) Sunk({myShips[key].filter(x => x.killed).length}) {myShips[key].filter(x => x.killed).length === myShips[key].length ? ' All ' + key.toUpperCase() + ' are sunk ❌'  : ''}</div>)}
     </div>
   }
 }
@@ -86,20 +86,19 @@ class ShipInput extends Component {
       </form>
       <button onClick={() => this.props.onAdd(this.state.name, this.state.pos)}>Add selected ship!</button>
       <br/>
-      <button onClick={() => this.props.onFinish()}>Finish adding ships!</button>
+      <button onClick={() => this.props.onFinish(this.props.tab)}>I'm Ready!</button>
     </div>
   }
 }
 
 class Board extends React.Component {
-
   state = {
     //maxRow: 10,
     //boards: [Array(this.props.max * this.props.max).fill(0), Array(this.props.max * this.props.max).fill(0)],
     //boards: [Array(100).fill(0), Array(100).fill(0)],
     boards: Array(this.props.boards).fill(0).map(x => Array(this.props.max * this.props.max).fill(0)),
     //boards: [],
-    squaresFirstBoard: Array(100).fill(0),
+    //squaresFirstBoard: Array(100).fill(0),
     ships: [{
       'carrier': [23, 24, 25, 26, 27],
       'battleship': [39, 49, 59, 69],
@@ -152,12 +151,32 @@ class Board extends React.Component {
       cyan: 2,
       blue: 3,
       magenta: 4,
-    }
+    },
+    ready: {},
+    letsplay: false,
   }
 
-  handleStart() {
+  componentDidMount() {
+    Array(this.props.boards).fill(0).map((x, ix) => {
+      const ready = this.state.ready;
+      ready['player' + ix] = false;
+      this.setState({ready});
+    });
+  }
+
+  handleStartAuto() {
     this.placeAllShips();
     console.log('Start');
+  }
+
+  handleStartManual() {
+    // const letsplay = this.state.letsplay;
+    // if (!letsplay) {
+    //   alert('Both players must be ready');
+    //   return;
+    // }
+    const whostarts = this.getRandomTo(this.props.boards - 1);
+    console.log("Soooo, let's play!!!!. First turn for player: ", whostarts + 1);
   }
 
   async handleClick(i) {
@@ -186,7 +205,7 @@ class Board extends React.Component {
 
   colorPoints(tab, points, color) {
     let validColor = this.state.color[color];
-    if (!validColor)  return null;
+    if (validColor === undefined)  return null;
     let localPoints = points;
     const boards = this.state.boards.slice();
     if (!Array.isArray(points)) localPoints = [points];
@@ -392,19 +411,22 @@ class Board extends React.Component {
     // await this.setState({squaresFirstBoard})
   }
 
-  renderTableau(tab, max, color) {
-    //const tableauValues = i === 0 ? this.state.squaresFirstBoard : this.state.squaresSecondBoard
-    //const boards = Array(2).fill(Array(100).fill(0));
-    //this.setState({boards});
-    //console.log('b', boards);
-    const tableauValues = this.state.boards[tab];
-    //this.placeAllShips();
-    //const r = this.placeAllShips();
+  handleFinishPuttingShips(tab) {
+    const tabBoard = this.state.boards[tab];
+    this.colorPoints(tab, Object.keys(tabBoard).map(x => Number(x)), 'yellow');
+    const ready = this.state.ready;
+    ready['player' + tab] = true; 
+    const letsplay = Object.values(ready).every(r => r);
+    if (letsplay) this.handleStartManual();
+    this.setState({ ready, letsplay });
+  }
 
-    //const ships = i === 0 ? this.state.shipsFB : this.state.shipsSB;
+  renderTableau(tab, max, color) {
+    console.log('Ready Status Player ', tab, this.state.ready['player' + tab]);
+    const tableauValues = this.state.boards[tab];
     return (
       <div key={'bd' + tab}>
-        <ShipInput onAdd={(name, pos) => this.handlePutSingleShip(name, pos)}/>
+        {!this.state.ready['player' + tab] && <ShipInput tab={tab} onAdd={(name, pos) => this.handlePutSingleShip(name, pos)} onFinish={(tab) => this.handleFinishPuttingShips(tab)}/>}
         <MyShips player={tab} ships={this.state.score['player' + tab]}/>
         <Square
           key={'sq' + tab}
@@ -431,15 +453,22 @@ class Board extends React.Component {
     } else {
       status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
     }
-    //const ships = ['carrier', 'cruiser', 'battleship', 'submarine', 'destroyer'];
+    const instructions = "Welcome! First every player has to place her/his ships, then the game will start automatically once every player has pressed 'I'm ready' button!";
+    const playing = 'The game is on, your turn player:';
     return (
       <div>
+        <h1>Battleship Game!</h1>
+        {!this.state.letsplay && <h3>{instructions}</h3>}
+        {this.state.letsplay && <h3>{playing}</h3>}
         <div className="status">{status}</div>
-        <button onClick={() => this.handleStart()}>Start the Game!</button>
-        <div>
+        {/* <button onClick={() => this.handleStartAuto()}>Start the Game Auto Mode!</button> */}
+        {this.state.letsplay && <button onClick={() => this.handleStartAuto()}>Restart Game!</button>}
+        {/* {!this.state.letsplay && <button onClick={() => this.handleStartManual()}>Start the Game!</button>} */}
+        {/* <div>
           
           <button onClick={() => this.handlePlaceMyShips(0)}>Place my ships!</button>
-        </div>
+        </div> */}
+        {/* <br/> */}
         {Array(this.props.boards).fill(0).map((x, ix) => this.renderTableau(ix, this.props.max, this.state.color))}
         <div className="board-row">
         </div>
