@@ -6,6 +6,26 @@ This project provides a 2 player Battleship game.
 
 You can clone, fork or download the whole project to play Battleship or take a look on the componets created and the logic implemented.
 
+### The Game
+
+#### Welcome to Battleship Game, pick your side!
+![Image](https://raw.githubusercontent.com/jomicm/battleship/master/docs/boards.png)
+
+#### Now place your ships manually or let the A.I. finds the best spots for you
+![Image](https://raw.githubusercontent.com/jomicm/battleship/master/docs/place.png)
+
+#### When the game is Over you will see the result in the list of ships of every player
+![Image](https://raw.githubusercontent.com/jomicm/battleship/master/docs/game.png)
+
+#### At every single move you can be sure the log will show what has happend!
+![Image](https://raw.githubusercontent.com/jomicm/battleship/master/docs/logs.png)
+
+#### If you are too good, your name surely be in this list!
+![Image](https://raw.githubusercontent.com/jomicm/battleship/master/docs/leaders.png)
+
+#### If you hace tried it all, maybe it's time for new challenges
+![Image](https://raw.githubusercontent.com/jomicm/battleship/master/docs/settings.png)
+
 ### The logic used:
 - There are always two boards. (However the number of boards could be overriden since every board, tile, and piece of render is a component).
 - Each board will render a N number of tiles, the same number of rows an columns, having as variable row/col. The result board will always be a square one.
@@ -35,16 +55,11 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 The page will reload if you make edits.<br>
 You will also see any lint errors in the console.
 
-
-### Examples
-
-#### You can create Single Bar Charts:
-![Image]()
-
 ### Features list and examples
 
 - Game
   - This is the main tab showing two boards and info about every player.
+  - There is an alert component which will keep you informed.
 - Log
   - This tab will show a log of all the players movements, notifiying every attack and the result. Also notigying all the sunk ships.
 - Leader Board
