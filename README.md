@@ -1,68 +1,74 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# ⛴ Battleship game using React JS
 
-## Available Scripts
+This project provides a 2 player Battleship game.
+
+## Getting Started
+
+You can clone, fork or download the whole project to play Battleship or take a look on the componets created and the logic implemented.
+
+### The logic used:
+- There are always two boards. (However the number of boards could be overriden since every board, tile, and piece of render is a component).
+- Each board will render a N number of tiles, the same number of rows an columns, having as variable row/col. The result board will always be a square one.
+- Columns are represented with letters from A to Z and then using more letter if required lile 'AB'.
+- Rows are represeted with numbers.
+- There are 5 types of ships available: Carrier, Cruiser, Battleship, Destroyer and Submarine.
+- Each player can put as many ships as wished of every type.
+- Each player selects from a droplist the type of ship they want to place and the orientation; then clicks **Add selected ship!** buton and clicks in the initial coordinate to place the ship. If the resulting position of the ship results in tiles outside the board, it will try to correct to available coordinates when possible.
+- There is also the possibility to let A.I. place our ships.
+- There is also the possibility to select an A.I. as a player. (You can even select both players as AI, in that case they will start playing immediatly) 
+- When you finish placing the ships you will have a list of your ships and the quantity of each one. This list will also notify when a ship is sunk.
+- When a player is done placing ships, then clicks **I'm ready** button.
+- When both players are ready and have pressed their respective buttons, then the game starts!
+- Every Player has a turn (might be adjustable) then their boards turns into the enemy's one and they have to try to find enemy's ships.
+- So they click on the tile the want to attack, a red color means HIT! and a blue color means MISS!. Once you sink a whole ship, the red attacked tiles will turn black.
+- The game ends when a player has sunk all the enemy's ships.
+
+### Prerequisites
 
 In the project directory, you can run:
 
 ### `npm start`
 
-Runs the app in the development mode.<br>
+Runs Battleship in the development mode.<br>
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 The page will reload if you make edits.<br>
 You will also see any lint errors in the console.
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Examples
 
-### `npm run build`
+#### You can create Single Bar Charts:
+![Image]()
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Features list and examples
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+- Game
+  - This is the main tab showing two boards and info about every player.
+- Log
+  - This tab will show a log of all the players movements, notifiying every attack and the result. Also notigying all the sunk ships.
+- Leader Board
+  - This tab will show a table with the ranking of all players who have entered a name. It will show in descending order from the top 1 player to the new ones.
+- Settings
+  - This tab will contain some extended functions for this project.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Note
 
-### `npm run eject`
+  - When A.I. plays against A.I. there is a blocking page while they make moves. After some seconds the result is rendered. It will be modified in next versions to see live action.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Extended features
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+  - The max number of rows/columns can be modified. (Default 10)
+  - The number of shots per turn can be modified.
+  - The number of ships the A.I. will play can be modified. (Default 1 each)
+  - If you select two A.I. they will play against each other.
+  - You can select the difficult level of the A.I.
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### Features to be implemented
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+  - Replay all game from beginning.
+  - Be able to play agains other people in other computers.
 
-## Learn More
+### Authors
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+* **Miguel Cruz** - *Initial work* -
