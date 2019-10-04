@@ -1,6 +1,12 @@
 body {
   font: 14px "Century Gothic", Futura, sans-serif;
-  margin: 20px;
+  background: #eb01a5;
+  /* background-image: url('./public/seapattern3.jpg'); */
+  /* background-repeat: repeat; */
+  /* background-image: url("IMAGE_URL"); fallback */
+  /* background-image: url('./public/seapattern3.jpg'), linear-gradient(#eb01a5, #d13531); /* W3C * */
+  background: linear-gradient(rgba(241, 244, 247, 0.8), rgba(237, 241, 247, 0.9)), url('./public/seapattern5.jpg') repeat fixed;
+  /* margin: 20px; */
 }
 
 ol, ul {
@@ -23,13 +29,13 @@ ol, ul {
   float: left;
   font-size: 14px;
   font-weight: bold;
-  line-height: 70px;
-  height: 70px;
+  line-height: 50px;
+  height: 50px;
   margin-right: -1px;
   margin-top: -1px;
   padding: 0;
   text-align: center;
-  width: 70px;  
+  width: 50px;  
 }
 
 .square:focus {
@@ -47,8 +53,24 @@ ol, ul {
 .game {
   display: flex;
   flex-direction: row;
+  padding: 20px;
 }
 
 .game-info {
   margin-left: 20px;
+}
+
+.radio {
+  padding-left: 20px;
+}
+
+.inline {
+  display: 'flex'; 
+  flex-direction: 'row';
+}
+
+.boards {
+  display: 'flex'; 
+  flex-direction: 'row';
+  margin-right: '50px';
 }
