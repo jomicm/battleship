@@ -1,12 +1,15 @@
 body {
   font: 14px "Century Gothic", Futura, sans-serif;
-  background: #eb01a5;
+  /* background: #eb01a5; */
   /* background-image: url('./public/seapattern3.jpg'); */
   /* background-repeat: repeat; */
   /* background-image: url("IMAGE_URL"); fallback */
-  /* background-image: url('./public/seapattern3.jpg'), linear-gradient(#eb01a5, #d13531); /* W3C * */
-  background: linear-gradient(rgba(241, 244, 247, 0.8), rgba(237, 241, 247, 0.9)), url('./public/seapattern5.jpg') repeat fixed;
-  /* margin: 20px; */
+  /* background-image: url('./public/seapattern3.jpg'), linear-gradient(#eb01a5, #d13531); W3C * */
+  background: linear-gradient(rgba(241, 244, 247, 0.98), rgba(237, 241, 247, 0.98)), url('./public/seapattern3.jpg') repeat fixed;
+  /* margin: 20px;
+  /* background-color: #f0f6ff;
+  background-image: url("https://www.transparenttextures.com/patterns/arches.png"); */
+  /* This is mostly intended for prototyping; please download the pattern and re-host for production environments. Thank you! */
 }
 
 ol, ul {
@@ -24,6 +27,7 @@ ol, ul {
 }
 
 .square {
+  color: black;
   background: #fff;
   border: 1px solid #999;
   float: left;
@@ -43,7 +47,7 @@ ol, ul {
 }
 
 .square:hover {
-  /* background: rgb(68, 170, 107); */
+  background: rgb(68, 170, 107);
 }
 
 .kbd-navigation .square:focus {
@@ -53,6 +57,7 @@ ol, ul {
 .game {
   display: flex;
   flex-direction: row;
+  align-content: center;
   padding: 20px;
 }
 
