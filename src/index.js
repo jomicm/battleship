@@ -5,6 +5,31 @@ import './index.css';
 function Square(props) {
   let mock = Array(props.max).fill(0).map((x, ix) => ix)
   let row = Array(props.max).fill(0).map((x, ix) => props.startingPoint * props.max + ix);
+  const convertFromNumberToXY = (n) => {
+    let squareSize = props.max;
+    let x = 0, y = 0;
+    let aux = 0;
+    while (aux < n) {
+      y++;
+      aux += squareSize;
+    }
+    x = n - (y - 1) * squareSize
+    return [x, y];
+  }
+  const coordTranslator = (x, y) => {
+    x -= 1;
+    const letters = [65, 90];
+    let nX = x > 25 ? Math.floor(x / 26) : 0;
+    let fX = x > 25 ? x - (26 * nX): x;
+    x = x > 25 ? x - 26 : x;
+    let res = (nX > 0 ? String.fromCharCode(letters[0] + nX - 1) : '') + String.fromCharCode(letters[0] + fX) + y;
+    return res;
+  }
+  const getRowColCoord = index => {
+    index = Number(index);
+    const xy = convertFromNumberToXY(index + 1);
+    return coordTranslator(xy[0], xy[1]);
+  }
   return (
     <div>
       {mock.map((y, i) => {
@@ -12,23 +37,23 @@ function Square(props) {
           <div key={'row' + y} className="board-row">
             {row.map((x, j) => {
               const btnId = props.board + '_' + (props.max * i + j);
+              const coord = getRowColCoord(props.max * i + j);
               let tileColor = Object.keys(props.color).find(key => props.color[key] === props.value[props.max * i + j]);
-              //console.log('props.value', props.value);
-              //console.log('tileColor', tileColor);
-              //let tileColor = props.value[props.max * i + j] === 0 ? 'yellow' : 'blue';
-              //tileColor = props.value[props.max * i + j] === -1 ? 'red' : tileColor;
-              //const toggleColor = props.value[props.max * i + j] === 2;
               return (
-                <button id={'button_' + btnId} key={'button_' + btnId} className="square"
-                  onClick={() => props.onClick(btnId)}
+                <button id={'button_' + btnId} 
+                  key={'button_' + btnId} 
+                  className="square"
+                  coord={coord}
+                  onClick={() => props.onClick(btnId, coord)}
                   //style={{'background': !toggleColor ? tileColor : 'violet'}}
                   style={{ 'background': tileColor }}
                   selected={tileColor === 'red' ? true : false}
                   onMouseEnter={() => props.onMouseEnter(btnId, true)}
                   //onMouseEnter={setTimeout(props.onMouseHover(btnId, true), 1000)}
                   onMouseLeave={() => props.onMouseLeave(btnId, false)}
-                >
-                  {btnId}
+                  >
+                  {/* {btnId} */}
+                  {coord}
                 </button>)
             })}
           </div>
@@ -67,6 +92,8 @@ class ShipInput extends Component {
   render() {
     return <div key={'shipInput'}>
       {/* <select value={this.state.name} onChange={e => this.setState({name: e.target.value})}> */}
+      <button onClick={() => this.props.onAIPlayer(this.props.tab)}><span role="img" aria-label="AI">🤖</span>AI Player!</button>
+      <br/>
       <select value={this.state.name} onChange={e => this.handleShipChange(e)}>
         {this.state.ships.map((s, index) => <option key={'shipOpt' + index}>{s}</option>)}
       </select>
@@ -85,9 +112,9 @@ class ShipInput extends Component {
         </div>
       </form>
       <button onClick={() => this.props.onAdd(this.state.name, this.state.pos)}>Add selected ship!</button>
+      <button onClick={() => this.props.onAI(this.props.tab)}>Let <span role="img" aria-label="AI">👾</span> AI put my ships!</button>
       <br/>
       <button onClick={() => this.props.onFinish(this.props.tab)}>I'm Ready!</button>
-      <button onClick={() => this.props.onAI(this.props.tab)}>AI Player!</button>
     </div>
   }
 }
@@ -164,6 +191,9 @@ class Board extends React.Component {
     letsplay: false,
     whoisplaying: -1,
     winner: -1,
+    AIPlayer: [],
+    level: 'easy',
+    rounds: 0,
   }
 
   componentDidMount() {
@@ -178,20 +208,43 @@ class Board extends React.Component {
     this.placeAllShips();
     console.log('Start');
   }
-
-  handleStartManual() {
-    // Switch boards not to play against yourself
-    // const boards = this.state.boards.slice();
-    // const tmpBoard0 = boards[0].slice();
-    // const tmpBoard1 = boards[1].slice();
-    // boards[0] = tmpBoard1;
-    // boards[1] = tmpBoard0;
+  
+  // Lets play!
+  async handleStartManual() {
     const whoisplaying = this.getRandomTo(this.props.boards - 1);
+    const AIPlayer = this.state.AIPlayer;
+    console.log('this.state.AIPlayer', this.state.AIPlayer);
     console.log("Soooo, let's play!!!!. First turn for player: ", whoisplaying + 1);
-    this.setState({whoisplaying});
+    await this.setState({whoisplaying});
+    if (AIPlayer.length > 0) {
+      console.log('OMG, we have AI Player!', AIPlayer);
+      if (AIPlayer.includes(whoisplaying)) {
+        this.getAIhit(this.state.level);
+        if (AIPlayer.length === 2) {
+          let winner = false
+          while (!winner) {
+            const winnerState = await this.state.winner;
+            if (winnerState > -1) winner = true;
+            const r = await this.getAIhit();
+          }
+        }
+      }
+    }
   }
 
-  async handleClick(i) {
+
+  async getAIhit() {
+    //Read level from state
+    const tab = this.state.whoisplaying;
+    const max = Math.pow(this.props.max, 2) - 1;
+    const hit = this.getRandomTo(max);
+    console.log('AI hit', hit);
+    await this.handleHit(tab, hit);
+    return true;
+  }
+
+  async handleClick(i, coord) {
+    console.log('coord', coord);
     const winner =  await this.state.winner;
     if (winner > -1) {
       alert('The game is over, you can restart it!. BTW player who won:' + winner.toString());
@@ -214,30 +267,33 @@ class Board extends React.Component {
         return;
       }
       // Color the clicked square either hit or miss
-      let color = this.handleHit(tab, index);
-      this.colorPoints(tab, index, color);
-      whoisplaying++;
-      whoisplaying = whoisplaying > this.props.boards - 1 ? 0 : whoisplaying;
-      this.setState({ whoisplaying });
+      await this.handleHit(tab, index, coord);
+      if (this.state.AIPlayer.length === 1) this.getAIhit();
     }
   }
   
-  handleHit(tab, index) {
-    console.log('hit3');
+  async handleHit(tab, index, coord) {
+    // console.log('hit3');
     tab = tab === 0 ? 1 : 0;
     let boardShips = this.state.ships2['player' + tab];
-    console.log('boardShips', boardShips);
+    // console.log('boardShips', boardShips);
+    let color = 'blue';
     for (let key in boardShips) {
-      console.log('key', key);
+      // console.log('key', key);
       for (let element of boardShips[key]) {
-        console.log('element', element);
+        // console.log('element', element);
         if (element.points.includes(Number(index))) {
           this.handleUpdateScore(tab, element, index);
-          return 'red';
+          color = 'red';
         }
       }
     }
-    return 'blue';
+    let rounds = this.state.rounds + 1;
+    await this.colorPoints(tab === 0 ? 1 : 0, index, color);
+    let whoisplaying = tab++;
+    whoisplaying = whoisplaying > this.props.boards - 1 ? 0 : whoisplaying;
+    await this.setState({ whoisplaying, rounds });
+    this.handleHistory(whoisplaying, index, coord, color);
   }
 
   async handlePlacingClick(tab, index, placing) {
@@ -255,7 +311,7 @@ class Board extends React.Component {
     this.colorPoints(tab, points, 'magenta');
   }
 
-  colorPoints(tab, points, color) {
+  async colorPoints(tab, points, color) {
     let validColor = this.state.color[color];
     if (validColor === undefined)  return null;
     let localPoints = points;
@@ -264,7 +320,7 @@ class Board extends React.Component {
     for (const point of localPoints) { 
       boards[tab][point] = validColor;
     }
-    this.setState({ boards })
+    await this.setState({ boards })
   }
 
   convertFromNumberToXY(n) {
@@ -285,12 +341,13 @@ class Board extends React.Component {
     this.setState({placing: { name, pos }});
   }
 
-  async handleHistory(tab, index) {
+  async handleHistory(tab, index, coord, color) {
     const history = this.state.history;
-    index = Number(index);
     history['player' + tab] = !history['player' + tab] ? [index] : [...history['player' + tab], index];
     await this.setState({ history });
-    console.log('this.state.history', this.state.history);
+    // console.log('this.state.history', this.state.history);
+    tab = tab === 0 ? 2 : 1;
+    console.log(`Player ${tab} shot at ${coord}: ${color === 'red' ? 'HIT' : 'MISS'}`);
   }
 
 
@@ -311,24 +368,27 @@ class Board extends React.Component {
         this.handleKill(tab, localShip[0]);
       }
     }
-    console.log('localScore', localScore);
+    // console.log('localScore', localScore);
     await this.setState({ score: localScore });
   }
 
   async handleKill(tab, ship) {
     console.log('ship', ship);
-    alert('You killed a ' + ship.name);
+    //alert('You killed a ' + ship.name);
+    console.log('You killed a ' + ship.name);
     let gameInfo = this.state.gameInfo;
     let playerInfo = gameInfo['player' + tab];
     playerInfo.shipsKilled++;
-    if (playerInfo.shipsPlaced === playerInfo.shipsKilled) this.handleLose(tab);
+    if (playerInfo.shipsPlaced === playerInfo.shipsKilled) { 
+      await this.handleLose(tab);
+    }
     await this.setState({ gameInfo });
     console.log('gameinfokilled', this.state.gameInfo);
   }
 
-  handleLose(tab) {
+  async handleLose(tab) {
     console.log('Player ' + tab + ' You lost!')
-    this.setState({winner: tab === 0 ? 1 : 0})
+    await this.setState({winner: tab === 0 ? 1 : 0})
   }
 
   tryPlaceShip = async (res, tab, ship) => {
@@ -451,12 +511,14 @@ class Board extends React.Component {
   handleFinishPuttingShips(tab) {
     const tabBoard = this.state.boards[tab];
     this.colorPoints(tab, Object.keys(tabBoard).map(x => Number(x)), 'yellow');
+    this.setPlayerReady(tab);
+  }
+  setPlayerReady(tab) {
     const ready = this.state.ready;
     ready['player' + tab] = true; 
     const letsplay = Object.values(ready).every(r => r);
     if (letsplay) this.handleStartManual();
     this.setState({ ready, letsplay });
-    console.log('Ships REady>', this.state.ships2);
   }
 
   handleResetGame() {
@@ -500,18 +562,37 @@ class Board extends React.Component {
       letsplay: false,
       whoisplaying: -1,
       winner: -1,
+      AIPlayer: [],
+      level: 'easy',
+      rounds: 0,
     });
   }
 
-  handleOnAI(tab) {
+  async handleOnAI(tab) {
     const staticShipDef = this.state.staticShipDef.slice();
-    console.log('BEFORE>', this.state.ships2);
-    this.placeAllShips(staticShipDef, tab);
-    console.log('AFTER>', this.state.ships2);
+    await this.placeAllShips(staticShipDef, tab);
+    this.colorAllShipsFromPlayer(tab, 'magenta');
+  }
+
+  async handleOnAIPlayer(tab) {
+    const staticShipDef = this.state.staticShipDef.slice();
+    await this.placeAllShips(staticShipDef, tab);
+    const AIPlayer = this.state.AIPlayer.slice();
+    AIPlayer.push(tab);
+    await this.setState({ AIPlayer });
+    this.setPlayerReady(tab);
+  }
+
+  colorAllShipsFromPlayer(tab, color) {
+    const shipsFrom = this.state.ships2['player' + tab];
+    Object.keys(shipsFrom).forEach(key => {
+      shipsFrom[key].forEach(ship => {
+        this.colorPoints(tab, ship.points, color);
+      })
+    })
   }
 
   renderTableau(tab, max, color) {
-    //console.log('Ready Status Player ', tab, this.state.ready['player' + tab]);
     const tableauValues = this.state.boards[tab];
     return (
       <div key={'bd' + tab}>
@@ -519,6 +600,7 @@ class Board extends React.Component {
                                                 tab={tab} onAdd={(name, pos) => this.handlePutSingleShip(name, pos)} 
                                                 onFinish={(tab) => this.handleFinishPuttingShips(tab)}
                                                 onAI={(tab) => this.handleOnAI(tab)}
+                                                onAIPlayer={(tab) => this.handleOnAIPlayer(tab)}
                                                 />}
         <MyShips player={tab} ships={this.state.score['player' + tab]}/>
         <Square
@@ -529,7 +611,7 @@ class Board extends React.Component {
           max={max}
           color={color}
           //ships={ships}
-          onClick={btnId => this.handleClick(btnId)}
+          onClick={(btnId, coord) => this.handleClick(btnId, coord)}
           onMouseEnter={(btnId, toggle) => this.handleEnter(btnId, toggle)}
           onMouseLeave={(btnId, toggle) => this.handleLeave(btnId, toggle)}
         />
@@ -548,14 +630,14 @@ class Board extends React.Component {
     }
     const instructions = "Welcome! First every player has to place her/his ships, then the game will start automatically once every player has pressed 'I'm ready' button!";
     const playing = 'The game is on, your turn player:';
-    const end = 'This amazing game is over. The winner is player ';
+    const end = `This amazing game is over after ${this.state.rounds} rounds. The winner is player ${this.state.winner + 1}`;
     let whoisplaying = this.state.whoisplaying;
     return (
       <div>
         <h1>Battleship Game!</h1>
         {!this.state.letsplay && <h3>{instructions}</h3>}
         {(this.state.letsplay && this.state.winner < 0) && <h3>{playing} {whoisplaying + 1}</h3>}
-        {this.state.winner > -1 && <h3>{end} {this.state.winner + 1}</h3>}
+        {this.state.winner > -1 && <h3>{end}</h3>}
         {/* <div className="status">{status}</div> */}
         {/* <button onClick={() => this.handleStartAuto()}>Start the Game Auto Mode!</button> */}
         {this.state.letsplay && <button onClick={() => this.handleResetGame()}>Restart Game!</button>}
