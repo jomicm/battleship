@@ -2,29 +2,36 @@
 
 This project provides a 2 player Battleship game.
 
+### Try it! 
+👉 http://107.180.79.212:3000/
+
 ## Getting Started
 
 You can clone, fork or download the whole project to play Battleship or take a look on the componets created and the logic implemented.
 
+## Quick guide how to play 📹 (video)
+
+[![Guide](https://i9.ytimg.com/vi/qeMcWWQzIos/mq3.jpg?sqp=CKC38OwF&rs=AOn4CLB5JvXqbQCVhUJMVsKiIIl7f02RlQ)](https://youtu.be/qeMcWWQzIos)
+
 ### The Game
 
 #### Welcome to Battleship Game, pick your side!
-![Image](https://raw.githubusercontent.com/jomicm/battleship/master/docs/boards.png)
+![Game](https://raw.githubusercontent.com/jomicm/battleship/master/docs/boards.png)
 
 #### Now place your ships manually or let the A.I. finds the best spots for you
-![Image](https://raw.githubusercontent.com/jomicm/battleship/master/docs/place.png)
+![Place](https://raw.githubusercontent.com/jomicm/battleship/master/docs/place.png)
 
 #### When the game is Over you will see the result in the list of ships of every player
-![Image](https://raw.githubusercontent.com/jomicm/battleship/master/docs/game.png)
+![List](https://raw.githubusercontent.com/jomicm/battleship/master/docs/game.png)
 
 #### At every single move you can be sure the log will show what has happend!
-![Image](https://raw.githubusercontent.com/jomicm/battleship/master/docs/logs.png)
+![Logs](https://raw.githubusercontent.com/jomicm/battleship/master/docs/logs.png)
 
 #### If you are too good, your name surely be in this list!
-![Image](https://raw.githubusercontent.com/jomicm/battleship/master/docs/leaders.png)
+![Leader](https://raw.githubusercontent.com/jomicm/battleship/master/docs/leaders.png)
 
 #### If you hace tried it all, maybe it's time for new challenges
-![Image](https://raw.githubusercontent.com/jomicm/battleship/master/docs/settings.png)
+![Settings](https://raw.githubusercontent.com/jomicm/battleship/master/docs/settings.png)
 
 ### The logic used:
 - There are always two boards. (However the number of boards could be overriden since every board, tile, and piece of render is a component).
