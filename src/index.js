@@ -55,14 +55,11 @@ function Square(props) {
                   className="square"
                   coord={coord}
                   onClick={() => props.onClick(btnId, coord)}
-                  //style={{'background': !toggleColor ? tileColor : 'violet'}}
                   style={{ 'background': tileColor }}
                   selected={tileColor === 'red' ? true : false}
                   onMouseEnter={() => props.onMouseEnter(btnId, true)}
-                  //onMouseEnter={setTimeout(props.onMouseHover(btnId, true), 1000)}
                   onMouseLeave={() => props.onMouseLeave(btnId, false)}
                 >
-                  {/* {btnId} */}
                   {coord}
                 </Button>)
             })}
@@ -206,7 +203,6 @@ class ShipInput extends Component {
   }
   render() {
     return <div key={'shipInput'}>
-      {/* <select value={this.state.name} onChange={e => this.setState({name: e.target.value})}> */}
       <span>Shortcut: Press orange button and then green one!</span>
       <br />
       <Button style={{ margin: '3px' }} onClick={() => this.props.onAIPlayer(this.props.tab)}><span role="img" aria-label="AI">🤖 </span>AI Player!</Button>
@@ -242,12 +238,7 @@ class ShipInput extends Component {
 
 class Board extends React.Component {
   state = {
-    //maxRow: 10,
-    //boards: [Array(this.props.max * this.props.max).fill(0), Array(this.props.max * this.props.max).fill(0)],
-    //boards: [Array(100).fill(0), Array(100).fill(0)],
     boards: Array(this.props.boards).fill(0).map(x => Array(this.props.max * this.props.max).fill(0)),
-    //boards: [],
-    //squaresFirstBoard: Array(100).fill(0),
     ships: [{
       'carrier': [23, 24, 25, 26, 27],
       'battleship': [39, 49, 59, 69],
@@ -295,10 +286,6 @@ class Board extends React.Component {
     score: {},
     gameInfo: {},
     history: {},
-    //hovered: [],
-    //selected: [],
-    //xIsNext: true,
-    //prevNumber: -1,
     used: {},
     placing: null,
     color: {
@@ -366,7 +353,6 @@ class Board extends React.Component {
 
 
   async getAIhit() {
-    //Read level from state
     const tab = this.state.whoisplaying;
     const max = Math.pow(this.props.max, 2) - 1;
     const hit = this.getRandomTo(max);
@@ -394,12 +380,10 @@ class Board extends React.Component {
       this.handlePlacingClick(tab, index, placing);
     } else if (whoisplaying > -1) {
       if (whoisplaying !== tab) {
-        // alert('Not your turn!');
         console.log('Not your turn!');
         this.writeMessage('Not your turn', 'danger', 2000);
         return;
       }
-      // Color the clicked square either hit or miss
       await this.handleHit(tab, index, coord);
       if (this.state.AIPlayer.length === 1) this.getAIhit();
     }
@@ -491,7 +475,6 @@ class Board extends React.Component {
   }
 
   handleUpdateScore(tab, ship, hit) {
-    //tab = 1;
     hit = Number(hit);
     let localScore = this.state.score;
     if (!localScore['player' + tab]) localScore['player' + tab] = {};
@@ -539,7 +522,6 @@ class Board extends React.Component {
     await this.setState({ leaderBoard: this.leaderToArray(battleShipLeaderBoard) });
   }
   leaderToArray(leader) {
-    // console.log('leader', leader);
     let res = [];
     for (const key in leader) {
       res.push({leader:key, pos:Number(leader[key])});
@@ -590,23 +572,16 @@ class Board extends React.Component {
     let playerNo = tab !== undefined ? tab : 0;
     let used = this.state.used;
     const shipDef2 = staticShipDef ? staticShipDef : this.state.shipDef2;
-    //for (const player of this.state.shipDef2) {
     for (const player of shipDef2) {
       let places = {};
       let shipsPlaced = 0;
       if (!used['player' + playerNo]) used['player' + playerNo] = [];
-      //if (used['player' + tab].some(r => res.includes(r))) return null;
-      // used['player' + tab] = [...used['player' + tab], ...res];
-      // await this.setState({ used });
-
       for (const ship in player) {
         for (let i = 0; i < player[ship].quantity; i++) {
           let res;
           let condition;
           do {
-            // res = this.placeShip(ship, this.props.max);
             res = this.placeShip(ship);
-            //condition = this.state.used.some(r => res.includes(r));
             condition = used['player' + playerNo].some(r => res.includes(r));
           } while (condition);
           used['player' + playerNo] = [...used['player' + playerNo], ...res];
@@ -619,7 +594,6 @@ class Board extends React.Component {
           this.handleUpdateScore(playerNo, newShip, -1);
         }
       }
-      //allPlaces.push(places);
       allPlaces['player' + playerNo] = places;
       const playerInfo = { shipsPlaced, shipsKilled: 0 };
       const gameInfo = this.state.gameInfo;
@@ -796,7 +770,6 @@ class Board extends React.Component {
   }
 
   render() {
-    //const winner = calculateWinner(this.state.squares);
     let status;
     if (true) {
       status = 'Winner: ' + true;
@@ -813,7 +786,6 @@ class Board extends React.Component {
         {!this.state.letsplay && <h4>{instructions}</h4>}
         {(this.state.letsplay && this.state.winner < 0) && <h3>{playing} {whoisplaying + 1}</h3>}
         {this.state.winner > -1 && <h3>{end}</h3>}
-        {/* <button onClick={() => this.handleStartAuto()}>Start the Game Auto Mode!</button> */}
         {this.state.letsplay && <Button onClick={() => this.handleResetGame()}>Restart Game!</Button>}
 
         <Tabs variant="tabs" defaultActiveKey="game" id="uncontrolled-tab-example">
