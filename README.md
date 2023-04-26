@@ -2,9 +2,6 @@
 
 This project provides a 2 player Battleship game.
 
-### Try it! 
-👉 http://107.180.79.212:3000/
-
 ## Getting Started
 
 You can clone, fork or download the whole project to play Battleship or take a look on the componets created and the logic implemented.
